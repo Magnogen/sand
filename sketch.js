@@ -104,14 +104,27 @@ let world = [...Array(c.width)].map((e, x) => [...Array(c.height)].map((e, y) =>
 }));
 
 world.changes = []
+world.changemap = [...Array(c.width)].map(e => [...Array(c.height)].map(e => false))
+world.clearChanges = function () {
+  this.changes = []
+  for (let x in this.changemap) {
+    for (let y in this.changemap[x]) {
+      if (this.changemap[x][y]) this.changemap[x][y] = false;
+    }
+  }
+}
+world.change = function (x, y) {
+  if (this.changemap[x][y]) return;
+  this.changes.push({ x, y });
+  this.changemap[x][y] = true
+}
 world.get = function (x, y) { return this[x][y] }
 world.swap = function (x1, y1, x2, y2) {
-  this.changes.push({ x: x1, y: y1 });
-  this.changes.push({ x: x2, y: y2 });
+  this.change(x1, y1); this.change(x2, y2);
   [this[x1][y1], this[x2][y2]] = [this[x2][y2], this[x1][y1]]
 }
 world.set = function (x, y, now) {
-  this.changes.push({ x, y });
+  this.change(x, y);
   this[x][y] = now
 }
 world.inside = function (x, y) {
@@ -232,6 +245,7 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
   }
   ctx.putImageData(pixels, 0, 0)
   
+  let coords = [...Array(c.width * c.height)].map((e, i) => ({ x: i%c.width, y: 0|(i/c.width) }))
   while (true) {
     let pixels = ctx.getImageData(0, 0, c.width, c.height)
     for (let {x, y} of world.changes) {
@@ -242,12 +256,11 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
       pixels.data[i + 2] = col[2]
       pixels.data[i + 3] = col[3]
     }
-    world.changes = []
+    world.clearChanges()
     ctx.putImageData(pixels, 0, 0)
     
     mouse.states[mouse.state].tick();
     
-    let coords = [...Array(c.width * c.height)].map((e, i) => ({ x: i%c.width, y: 0|(i/c.width) }))
     shuffle(coords)
     for (let {x, y} of coords) {
       world[x][y].do(x, y, world)

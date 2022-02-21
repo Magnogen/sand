@@ -71,7 +71,7 @@ class Sand extends Element {
 class Water extends Element {
   constructor(x, y) {
     super(x, y)
-    this.dispersionRate = 4
+    this.dispersionRate = 2
     this.col = [ 64, 64, 255, 255 ]
   }
   do(x, y, world) {
@@ -79,20 +79,30 @@ class Water extends Element {
       world.swap(x, y, x, y+1)
       return
     }
-    let X = x
-    for (let i = 1; i < this.dispersionRate; i++) {
+    let X = x, Y = y
+    for (let i = 1; i <= this.dispersionRate; i++) {
       const side = Math.random() < 0.5 ? -1 : 1
-      if (x+i*side > -1 && x+i*side < c.width && world[x+i*side][y].empty) {
+      if (world.inside(x+i*side, y+1) && world[x+i*side][y+1].empty) {
+        X = x+i*side
+        Y = y+1
+        continue
+      }
+      if (world.inside(x-i*side, y+1) && world[x-i*side][y+1].empty) {
+        X = x-i*side
+        Y = y+1
+        continue
+      }
+      if (world.inside(x+i*side, y) && world[x+i*side][y].empty) {
         X = x+i*side
         continue
       }
-      if (x-i*side > -1 && x-i*side < c.width && world[x-i*side][y].empty) {
+      if (world.inside(x-i*side, y) && world[x-i*side][y].empty) {
         X = x-i*side
         continue
       }
       break
     }
-    world.swap(X, y, x, y)
+    world.swap(X, Y, x, y)
   }
   color(x, y) { return this.col }
 }
@@ -106,16 +116,14 @@ let world = [...Array(c.width)].map((e, x) => [...Array(c.height)].map((e, y) =>
 world.changes = []
 world.changemap = [...Array(c.width)].map(e => [...Array(c.height)].map(e => false))
 world.clearChanges = function () {
-  this.changes = []
-  for (let x in this.changemap) {
-    for (let y in this.changemap[x]) {
-      if (this.changemap[x][y]) this.changemap[x][y] = false;
-    }
+  for (let i of world.changes) {
+    this.changemap[i%c.width][0|i/c.width] = false
   }
+  this.changes = []
 }
 world.change = function (x, y) {
   if (this.changemap[x][y]) return;
-  this.changes.push({ x, y });
+  this.changes.push(x + y * c.width);
   this.changemap[x][y] = true
 }
 world.get = function (x, y) { return this[x][y] }
@@ -248,13 +256,13 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
   let coords = [...Array(c.width * c.height)].map((e, i) => ({ x: i%c.width, y: 0|(i/c.width) }))
   while (true) {
     let pixels = ctx.getImageData(0, 0, c.width, c.height)
-    for (let {x, y} of world.changes) {
-      let i = 4*(x + y*c.width)
+    for (let i of world.changes) {
+      const x = i%c.width,
+            y = 0|i/c.width
       let col = world[x][y].color(x, y)
-      pixels.data[i + 0] = col[0]
-      pixels.data[i + 1] = col[1]
-      pixels.data[i + 2] = col[2]
-      pixels.data[i + 3] = col[3]
+      pixels.data[4*i + 0] = col[0]
+      pixels.data[4*i + 1] = col[1]
+      pixels.data[4*i + 2] = col[2]
     }
     world.clearChanges()
     ctx.putImageData(pixels, 0, 0)

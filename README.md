@@ -12,6 +12,7 @@ I've added the backend for Air and Water already, it's just a matter of adding t
 
 ### Plans for the future
 I'd like to add a few features for things like
+- [ ] Making it work on touchscreen devices (mobiles)
 - [ ] Resetting the canvas,
 
   (Maybe a keybind? Or a button in a menu?)

@@ -11,114 +11,99 @@ const hash = ((size) => {
   return (x, y) => table[(0|x)%size][(0|y)%size]
 })(16)
 
-class Empty {
-  constructor() {
-    this.empty = true
-  }
-  color() {
-    return [ 0, 0, 0, 255 ]
-  }
-  do(x, y, world) { return world }
+const Elem = {
+  Air:   Symbol.for('net.magnogen:element.air'),
+  Wall:  Symbol.for('net.magnogen:element.wall'),
+  Sand:  Symbol.for('net.magnogen:element.sand'),
+  Water: Symbol.for('net.magnogen:element.water'),
 }
 
-class Element extends Empty { constructor() { super(); this.empty = false; } }
-
-class Wall extends Element {
-  constructor() {
-    super()
-  }
-  color(x, y) {
-    let r = hash(x, y)
-    return [ 0|(16+32*r), 0|(16+32*r), 0|(16+32*r), 255 ]
-  }
-}
-
-class Sand extends Element {
-  constructor(x, y) {
-    super(x, y)
-    this.isFreeFalling = false
-    this.inertialResistance = 0.9
-    let r = hash(x, y)
-    r = (Math.sin((performance.now()/500 + Math.random()/24) * Math.PI)+2)/3
-    this.col = [ 209 + r*(253-209), 183 + r*(227-183), 157 + r*(197-157), 255 ]
-  }
-  do(x, y, world) {
-    if (this.isFreeFalling) {
-      if (world[x-1][y] instanceof Sand) world[x-1][y].isFreeFalling = true
-      if (world[x+1][y] instanceof Sand) world[x+1][y].isFreeFalling = true
+function makeType(type) {
+  return {
+    type,
+    is(...types) {
+      for (let type of types)
+        if (type == this.type) return true;
+      return false;
     }
-    if (world[x][y+1].empty) {
-      this.isFreeFalling = true
+  }
+}
+
+const Make = {
+  [Elem.Air]  (x, y) { return { type: makeType(Elem.Air) } },
+  [Elem.Wall] (x, y) { return { type: makeType(Elem.Wall) } },
+  [Elem.Sand] (x, y) {
+    let col = hash(x, y)
+    col = (Math.sin((performance.now()/500 + Math.random()/24) * Math.PI)+2)/3
+    col = [ 209 + col*(253-209), 183 + col*(227-183), 157 + col*(197-157), 255 ]
+    return { type: makeType(Elem.Sand), col }
+  },
+  [Elem.Water] (x, y) {
+    let col = hash(x, y)
+    col = performance.now()/500 + Math.random()/24
+    return { type: makeType(Elem.Water), col }
+  },
+}
+
+const Colour = {
+  [Elem.Air]   (el, x, y)  { return [0, 0, 0, 255] },
+  [Elem.Wall]  (el, x, y)  {
+    let r = hash(x, y);
+    return [ 0|(64+32*r), 0|(64+32*r), 0|(64+32*r), 255 ];
+  },
+  [Elem.Sand]  (el, x, y)  { return el.col },
+  [Elem.Water] (el, x, y) {
+    const col = (Math.sin((performance.now()/40 + el.col) * Math.PI)+2)/3
+    // 127, 155, 219
+    // 89, 121, 194
+    return [ 127 + col*(89-127), 155 + col*(121-155), 219 + col*(194-219), 255 ]
+  },
+}
+
+const Rule = {
+  [Elem.Air]   (x, y, world) {},
+  [Elem.Wall]  (x, y, world) {},
+  [Elem.Sand]  (x, y, world) {
+    if (world[x][y+1].type.is(Elem.Air, Elem.Water))
       world.swap(x, y, x, y+1)
-      return world
-    } else if (this.isFreeFalling) {
-      const side = Math.random() < 0.5 ? -1 : 1
-      if (world.inside(x+side, y) && world[x+side][y+1].empty) {
-        this.isFreeFalling = true
-        world.swap(x, y, x+side, y+1)
-      }
-    }
-    return world
-  }
-  color(x, y) {
-    // let r = hash(x, y)
-    // // 209,183,157
-    // return [ 209 + r*(253-209), 183 + r*(227-183), 157 + r*(197-157), 255 ]
-    return this.col
-  }
-}
-  
-class Water extends Element {
-  constructor(x, y) {
-    super(x, y)
-    this.dispersionRate = 2
-    this.col = [ 64, 64, 255, 255 ]
-  }
-  do(x, y, world) {
-    if (world[x][y+1].empty) {
+    const side = Math.random() < 0.5 ? -1 : 1
+    if (world.inside(x+side, y) && world[x+side][y+1].type.is(Elem.Air, Elem.Water))
+      world.swap(x, y, x+side, y+1)
+    else if (world.inside(x-side, y) && world[x-side][y+1].type.is(Elem.Air, Elem.Water))
+      world.swap(x, y, x-side, y+1)
+  },
+  [Elem.Water] (x, y, world) {
+    if (world[x][y+1].type.is(Elem.Air))
       world.swap(x, y, x, y+1)
-      return
-    }
-    let X = x, Y = y
-    for (let i = 1; i <= this.dispersionRate; i++) {
-      const side = Math.random() < 0.5 ? -1 : 1
-      if (world.inside(x+i*side, y+1) && world[x+i*side][y+1].empty) {
-        X = x+i*side
-        Y = y+1
-        continue
-      }
-      if (world.inside(x-i*side, y+1) && world[x-i*side][y+1].empty) {
-        X = x-i*side
-        Y = y+1
-        continue
-      }
-      if (world.inside(x+i*side, y) && world[x+i*side][y].empty) {
-        X = x+i*side
-        continue
-      }
-      if (world.inside(x-i*side, y) && world[x-i*side][y].empty) {
-        X = x-i*side
-        continue
-      }
-      break
-    }
-    world.swap(X, Y, x, y)
-  }
-  color(x, y) { return this.col }
+    const side = Math.random() < 0.5 ? -1 : 1
+    if (world.inside(x+side, y) && world[x+side][y+1].type.is(Elem.Air))
+      world.swap(x, y, x+side, y+1)
+    else if (world.inside(x-side, y) && world[x-side][y+1].type.is(Elem.Air))
+      world.swap(x, y, x-side, y+1)
+    else if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air))
+      world.swap(x, y, x+side, y)
+    else if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air))
+      world.swap(x, y, x-side, y)
+  },
 }
+
+let Paint = Elem.Sand;
+
+$('select#paint').addEventListener('change', e => {
+  Paint = Elem[e.target.value];
+})
 
 let world = [...Array(c.width)].map((e, x) => [...Array(c.height)].map((e, y) => {
-  if (x == 0 || x == c.width-1) return new Wall()
-  if (y == 0 || y == c.height-1) return new Wall()
-  return new Empty()
+  if (x == 0 || x == c.width-1) return Make[Elem.Wall](x, y)
+  if (y == 0 || y == c.height-1) return Make[Elem.Wall](x, y)
+  return Make[Elem.Air](x, y)
 }));
 
 world.changes = []
 world.changemap = [...Array(c.width)].map(e => [...Array(c.height)].map(e => false))
 world.clearChanges = function () {
-  for (let i of world.changes) {
+  for (let i of world.changes)
     this.changemap[i%c.width][0|i/c.width] = false
-  }
   this.changes = []
 }
 world.change = function (x, y) {
@@ -170,9 +155,10 @@ function iterateAndApplyMethodBetweenTwoPoints(x1, y1, x2, y2, func) {
       yIncrease = i;
       xIncrease = shorterSideIncrease;
     }
-    let currentY = y1 + (yIncrease * yModifier);
-    let currentX = x1 + (xIncrease * xModifier);
-    func(currentX, currentY);
+    const currentY = y1 + (yIncrease * yModifier);
+    const currentX = x1 + (xIncrease * xModifier);
+    const res = func(currentX, currentY);
+    if (res == 'stop') break
   }
 }
 
@@ -183,12 +169,15 @@ const paint = () => {
   const X2 = 0|((c.width * mouse.x-bounds.x) / bounds.width)
   const Y2 = 0|((c.height * mouse.y-bounds.y) / bounds.height)
   iterateAndApplyMethodBetweenTwoPoints(X1, Y1, X2, Y2, (x, y) => {
-    let brushSize = 3
-    for (let X = x - brushSize; X < x + brushSize; X++) {
-      for (let Y = y - brushSize; Y < y + brushSize; Y++) {
+    let brushSize = 7
+    for (let X = x - (brushSize>>1); X <= x + (brushSize>>1); X++) {
+      for (let Y = y - (brushSize>>1); Y <= y + (brushSize>>1); Y++) {
         if (X < 0 || X >= c.width) continue
         if (Y < 0 || Y >= c.height) continue
-        if (world[X][Y].empty) world.set(X, Y, new Sand(X, Y))
+        if (X*X + Y*Y < brushSize) continue
+        if (world[X][Y].type.is(Elem.Air) || Paint == Elem.Air) {
+          world.set(X, Y, Make[Paint](x, y))
+        }
       }
     }
   })
@@ -223,7 +212,7 @@ let mouse = {
 
 c.addEventListener("mousemove", e => {
   mouse.lastx = mouse.x; mouse.lasty = mouse.y;
-  mouse.x = e.pageX; mouse.y = e.pageY;
+  mouse.x = e.offsetX; mouse.y = e.offsetY;
   mouse.states[mouse.state].move();
 });
 c.addEventListener("mousedown", e => {
@@ -244,7 +233,7 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
   for (let x = 0; x < c.width; x++) {
     for (let y = 0; y < c.height; y++) {
       let i = 4*(x + y*c.width)
-      let col = world[x][y].color(x, y)
+      let col = Colour[world[x][y].type.type](world[x][y], x, y)
       pixels.data[i + 0] = col[0]
       pixels.data[i + 1] = col[1]
       pixels.data[i + 2] = col[2]
@@ -254,12 +243,13 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
   ctx.putImageData(pixels, 0, 0)
   
   let coords = [...Array(c.width * c.height)].map((e, i) => ({ x: i%c.width, y: 0|(i/c.width) }))
+  shuffle(coords)
   while (true) {
     let pixels = ctx.getImageData(0, 0, c.width, c.height)
     for (let i of world.changes) {
       const x = i%c.width,
             y = 0|i/c.width
-      let col = world[x][y].color(x, y)
+      const col = Colour[world[x][y].type.type](world[x][y], x, y)
       pixels.data[4*i + 0] = col[0]
       pixels.data[4*i + 1] = col[1]
       pixels.data[4*i + 2] = col[2]
@@ -267,14 +257,20 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
     world.clearChanges()
     ctx.putImageData(pixels, 0, 0)
     
+    mouse.lastx = mouse.x;
+    mouse.lasty = mouse.y;
     mouse.states[mouse.state].tick();
     
     shuffle(coords)
     for (let {x, y} of coords) {
-      world[x][y].do(x, y, world)
+      Rule[world[x][y].type.type](x, y, world)
     }
     
     await new Promise(requestAnimationFrame)
+    // await new Promise(requestAnimationFrame)
+    // await new Promise(requestAnimationFrame)
+    // await new Promise(requestAnimationFrame)
+    // await new Promise(requestAnimationFrame)
   }
 })()
 

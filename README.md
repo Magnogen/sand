@@ -12,6 +12,9 @@ I've added the backend for Air and Water already, it's just a matter of adding t
 
 ### Plans for the future
 I'd like to add a few features for things like
+- [x] MORE ELEMENTS
+  
+  (And a way to switch between them)
 - [ ] Making it work on touchscreen devices (mobiles)
 - [ ] Resetting the canvas,
 

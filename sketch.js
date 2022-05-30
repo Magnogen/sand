@@ -12,17 +12,17 @@ const hash = ((size) => {
 })(16)
 
 const Elem = {
-  Air:     Symbol.for('net.magnogen:element.air'),
-  Wall:    Symbol.for('net.magnogen:element.wall'),
-  Sand:    Symbol.for('net.magnogen:element.sand'),
-  Dirt:    Symbol.for('net.magnogen:element.dirt'),
-  Grass:   Symbol.for('net.magnogen:element.grass'),
-  Stone:   Symbol.for('net.magnogen:element.stone'),
-  Water:   Symbol.for('net.magnogen:element.water'),
-  Lava:    Symbol.for('net.magnogen:element.lava'),
-  Steam:   Symbol.for('net.magnogen:element.steam'),
-  Fire:    Symbol.for('net.magnogen:element.fire'),
-  Sawdust: Symbol.for('net.magnogen:element.sawdust'),
+  Air:     Symbol.for('net.magnogen:air'),
+  Wall:    Symbol.for('net.magnogen:wall'),
+  Sand:    Symbol.for('net.magnogen:sand'),
+  Dirt:    Symbol.for('net.magnogen:dirt'),
+  Grass:   Symbol.for('net.magnogen:grass'),
+  Stone:   Symbol.for('net.magnogen:stone'),
+  Water:   Symbol.for('net.magnogen:water'),
+  Lava:    Symbol.for('net.magnogen:lava'),
+  Steam:   Symbol.for('net.magnogen:steam'),
+  Fire:    Symbol.for('net.magnogen:fire'),
+  Sawdust: Symbol.for('net.magnogen:sawdust'),
 }
 
 let Paint = Elem.Sand

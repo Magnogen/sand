@@ -2,10 +2,19 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+main {
+  display: inline-block;
+/*   padding: 1em; */
+  background-color: #004cff;
+  display: flex;
+  height: 100vh;
+  width: 100vh;
+}
+
 canvas {
-  display: block;
-  width: min(100vh, 100vw);
-  height: min(100vh, 100vw);
+/*   visibility: hidden; */
+  display: inline;
   image-rendering: optimizeSpeed;             /* Older versions of FF          */
   image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
   image-rendering: -webkit-optimize-contrast; /* Safari                        */

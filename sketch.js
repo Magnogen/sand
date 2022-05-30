@@ -175,8 +175,8 @@ const paint = () => {
         if (X < 0 || X >= c.width) continue
         if (Y < 0 || Y >= c.height) continue
         if (X*X + Y*Y < brushSize) continue
-        if (world[X][Y].type.is(Elem.Air) || Paint == Elem.Air) {
-          world.set(X, Y, Make[Paint](x, y))
+        if (world[X][Y].type.is(Elem.Air) || (Paint == Elem.Air && X > 0 && X < c.width-1 && Y > 0 && Y < c.height-1)) {
+          world.set(X, Y, Make[Paint](X, Y))
         }
       }
     }

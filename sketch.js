@@ -16,7 +16,6 @@ const Elem = {
   Wall:    Symbol.for('net.magnogen:wall'),
   Sand:    Symbol.for('net.magnogen:sand'),
   Dirt:    Symbol.for('net.magnogen:dirt'),
-  Grass:   Symbol.for('net.magnogen:grass'),
   Stone:   Symbol.for('net.magnogen:stone'),
   Water:   Symbol.for('net.magnogen:water'),
   Lava:    Symbol.for('net.magnogen:lava'),
@@ -50,7 +49,7 @@ const Make = {
     let col = hash(x, y)
     col = (Math.sin((performance.now()/500 + Math.random()/24) * Math.PI)+2)/3
     col = [ 209 + col*(253-209), 183 + col*(227-183), 157 + col*(197-157), 255 ]
-    let friction = Math.random() < 0.25 ? 0 : 1
+    let friction = 0|(Math.random() * 1 + 0.667)
     return { type: makeType(Elem.Sand), col, friction }
   },
   [Elem.Dirt] (x, y) {
@@ -59,17 +58,8 @@ const Make = {
     // 105, 61, 36
     // 130, 81, 53
     col = [ 105 + col*(130-105), 61 + col*(81-61), 36 + col*(53-36), 255 ]
-    let friction = Math.random() < 0.5 ? 4 : 1
+    let friction = 0|(Math.random() * 3 + 1)
     return { type: makeType(Elem.Dirt), col, friction }
-  },
-  [Elem.Grass] (x, y) {
-    let col = hash(x, y)
-    col = (Math.sin((performance.now()/500 + Math.random()/24) * Math.PI)+2)/3
-    // 105, 61, 36
-    // 130, 81, 53
-    col = [ 105 + col*(130-105), 255 + col*(230-255), 36 + col*(53-36), 255 ]
-    let friction = Math.random() < 0.5 ? 4 : 1
-    return { type: makeType(Elem.Grass), col, friction }
   },
   [Elem.Stone] (x, y) {
     let col = hash(x, y)
@@ -77,7 +67,7 @@ const Make = {
     // 142, 181, 189
     // 109, 137, 143
     col = [ 142 + col*(109-142), 181 + col*(137-181), 189 + col*(143-189), 255 ]
-    let friction = Math.random() < 0.667 ? 32 : 2
+    let friction = 0|(Math.random() * 8 + 2)
     return { type: makeType(Elem.Stone), col, friction }
   },
   [Elem.Water] (x, y) {
@@ -97,9 +87,9 @@ const Make = {
   },
   [Elem.Fire] (x, y) {
     let col = hash(x, y)
-    // 186, 40, 24
-    // 252, 122, 23
-    col = [ 186 + col*(252-186), 40 + col*(122-40), 24 + col*(23-24), 255 ]
+    // 217, 133, 37
+    // 255, 201, 25
+    col = [ 217 + col*(255-217), 65 + col*(133-65), 37 + col*(25-37), 255 ]
     let age = 4 + 0|(Math.random() * 24)
     return { type: makeType(Elem.Fire), col, age }
   },
@@ -121,7 +111,6 @@ const Colour = {
   },
   [Elem.Sand]  (el, x, y)  { return el.col },
   [Elem.Dirt]  (el, x, y)  { return el.col },
-  [Elem.Grass]  (el, x, y)  { return el.col },
   [Elem.Stone] (el, x, y)  { return el.col },
   [Elem.Water] (el, x, y) {
     const col = (Math.sin((performance.now()/40 + el.col) * Math.PI)+2)/3
@@ -131,9 +120,9 @@ const Colour = {
   },
   [Elem.Lava] (el, x, y) {
     const col = (Math.sin((performance.now()/40 + el.col) * Math.PI)+2)/3
-    // 127, 155, 219
-    // 89, 121, 194
-    return [ 155 + col*(121-155), 219 + col*(194-219), 127 + col*(89-127), 255 ]
+    // 168, 50, 56
+    // 181, 66, 40
+    return [ 168 + col*(181-168), 50 + col*(66-50), 56 + col*(40-56), 255 ]
   },
   [Elem.Steam] (el, x, y)  { return el.col },
   [Elem.Fire]  (el, x, y)  { return el.col },
@@ -172,14 +161,6 @@ const Rule = {
     else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water))
       if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water))
         world.swap(x, y, x-side, y)
-  },
-  [Elem.Grass]  (x, y, world) {
-    if (world.inside(x, y-1) && !world[x][y-1].type.is(Elem.Air, Elem.Water)) {
-      world.set(x, y, Make[Elem.Dirt](x, y))
-    }
-    if (world.inside(x, y+1) && !world[x][y+1].type.is(Elem.Dirt)) {
-      world.set(x, y, Make[Elem.Dirt](x, y))
-    }
   },
   [Elem.Stone] (x, y, world) {
     const side = Math.random() < 0.5 ? -1 : 1
@@ -279,16 +260,16 @@ const Rule = {
     }
   },
   [Elem.Sawdust]  (x, y, world) {
-    if (world.inside(x, y+1) && world[x][y+1].type.is(Elem.Fire)) {
+    if (world.inside(x, y+1) && world[x][y+1].type.is(Elem.Fire, Elem.Lava)) {
       world.set(x, y, Make[Elem.Fire](x, y))
       return
-    } else if (world.inside(x, y-1) && world[x][y-1].type.is(Elem.Fire)) {
+    } else if (world.inside(x, y-1) && world[x][y-1].type.is(Elem.Fire, Elem.Lava)) {
       world.set(x, y, Make[Elem.Fire](x, y))
       return
-    } else if (world.inside(x+1, y) && world[x+1][y].type.is(Elem.Fire)) {
+    } else if (world.inside(x+1, y) && world[x+1][y].type.is(Elem.Fire, Elem.Lava)) {
       world.set(x, y, Make[Elem.Fire](x, y))
       return
-    } else if (world.inside(x-1, y) && world[x-1][y].type.is(Elem.Fire)) {
+    } else if (world.inside(x-1, y) && world[x-1][y].type.is(Elem.Fire, Elem.Lava)) {
       world.set(x, y, Make[Elem.Fire](x, y))
       return
     }
@@ -489,4 +470,3 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
     // await new Promise(requestAnimationFrame)
   }
 })()
-

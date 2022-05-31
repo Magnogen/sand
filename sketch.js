@@ -147,11 +147,6 @@ const Rule = {
   },
   [Elem.Dirt]  (x, y, world) {
     const side = Math.random() < 0.5 ? -1 : 1
-    if (world.inside(x, y-1) && world[x][y-1].type.is(Elem.Air) && world[x-side][y].type.is(Elem.Water)) {
-      world.set(x, y, Make[Elem.Grass](x, y))
-      world.set(x-side, y, Make[Elem.Air](x-side, y))
-      return
-    }
     const f = world[x][y].friction
     if (world[x][y+1].type.is(Elem.Air, Elem.Water))
       world.swap(x, y, x, y+1)

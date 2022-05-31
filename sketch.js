@@ -40,7 +40,7 @@ function makeType(type) {
 
 const Make = {
   [Elem.Air]  (x, y) { return { type: makeType(Elem.Air) } },
-  [Elem.Wall] (x, y) { return { type: makeType(Elem.Wall), burn: 1 } },
+  [Elem.Wall] (x, y) { return { type: makeType(Elem.Wall), char: 1 } },
   [Elem.Sand] (x, y) {
     let col = hash(x, y)
     col = (Math.sin((performance.now()/500 + Math.random()/24) * Math.PI)+2)/3
@@ -99,15 +99,11 @@ const Make = {
   }
 }
 
-let ag = true
-
 const Colour = {
   [Elem.Air]   (el, x, y)  { return [0, 0, 0, 255] },
   [Elem.Wall]  (el, x, y)  {
-    if (ag) console.log(el)
-    ag = false
     let r = hash(x, y);
-    return [ 0|((64+32*r)*(el.burn)), 0|((64+32*r)*(el.burn)), 0|((64+32*r)*(el.burn)), 255 ];
+    return [ 0|((64+32*r)*(el.char)), 0|((64+32*r)*(el.char)), 0|((64+32*r)*(el.char)), 255 ];
   },
   [Elem.Sand]  (el, x, y)  { return el.col },
   [Elem.Dirt]  (el, x, y)  { return el.col },
@@ -133,19 +129,19 @@ const Rule = {
   [Elem.Air]   (x, y, world) {},
   [Elem.Wall]  (x, y, world) {
     if (world.inside(x, y+1)) {
-      if (world[x][y+1].type.is(Elem.Fire, Elem.Lava)) world[x][y].burn *= 0.95
-      if (world[x][y+1].type.is(Elem.Wall) && world[x][y+1].burn < world[x][y].burn - 0.1) world[x][y].burn *= 0.99
+      if (world[x][y+1].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
+      if (world[x][y+1].type.is(Elem.Wall) && world[x][y+1].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
     } if (world.inside(x, y-1)) {
-      if (world[x][y-1].type.is(Elem.Fire, Elem.Lava)) world[x][y].burn *= 0.95
-      if (world[x][y-1].type.is(Elem.Wall) && world[x][y-1].burn < world[x][y].burn - 0.1) world[x][y].burn *= 0.99
+      if (world[x][y-1].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
+      if (world[x][y-1].type.is(Elem.Wall) && world[x][y-1].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
     } if (world.inside(x+1, y)) {
-      if (world[x+1][y].type.is(Elem.Fire, Elem.Lava)) world[x][y].burn *= 0.95
-      if (world[x+1][y].type.is(Elem.Wall) && world[x+1][y].burn < world[x][y].burn - 0.1) world[x][y].burn *= 0.99
+      if (world[x+1][y].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
+      if (world[x+1][y].type.is(Elem.Wall) && world[x+1][y].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
     } if (world.inside(x-1, y)) {
-      if (world[x-1][y].type.is(Elem.Fire, Elem.Lava)) world[x][y].burn *= 0.95
-      if (world[x-1][y].type.is(Elem.Wall) && world[x-1][y].burn < world[x][y].burn - 0.1) world[x][y].burn *= 0.99
+      if (world[x-1][y].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
+      if (world[x-1][y].type.is(Elem.Wall) && world[x-1][y].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
     }
-    world[x][y].burn = Math.max(0.5, 1-0.998*(1-world[x][y].burn))
+    world[x][y].char = Math.max(0.5, 1-0.998*(1-world[x][y].char))
     world.change(x, y)
   },
   [Elem.Sand]  (x, y, world) {

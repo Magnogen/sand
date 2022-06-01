@@ -128,21 +128,15 @@ const Colour = {
 const Rule = {
   [Elem.Air]   (x, y, world) {},
   [Elem.Wall]  (x, y, world) {
-    if (world.inside(x, y+1)) {
-      if (world[x][y+1].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
-      if (world[x][y+1].type.is(Elem.Wall) && world[x][y+1].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
-    } if (world.inside(x, y-1)) {
-      if (world[x][y-1].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
-      if (world[x][y-1].type.is(Elem.Wall) && world[x][y-1].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
-    } if (world.inside(x+1, y)) {
-      if (world[x+1][y].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
-      if (world[x+1][y].type.is(Elem.Wall) && world[x+1][y].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
-    } if (world.inside(x-1, y)) {
-      if (world[x-1][y].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
-      if (world[x-1][y].type.is(Elem.Wall) && world[x-1][y].char < world[x][y].char - 0.1) world[x][y].char *= 0.99
+    let X = x, Y = y;
+    if (Math.random() < 0.5) X += Math.random()<0.5 ? 1 : -1;
+    else Y += Math.random()<0.5 ? 1 : -1;
+    if (world.inside(X, Y)) {
+      if (world[X][Y].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
+      if (world[X][Y].type.is(Elem.Wall) && world[X][Y].char + 0.1 < world[x][y].burn) world[x][y].char *= 0.9
     }
     world[x][y].char = Math.max(0.5, 1-0.998*(1-world[x][y].char))
-    world.change(x, y)
+    if (Math.random() < 0.5) world.change(x, y)
   },
   [Elem.Sand]  (x, y, world) {
     const side = Math.random() < 0.5 ? -1 : 1
@@ -182,21 +176,12 @@ const Rule = {
         world.swap(x, y, x-side, y)
   },
   [Elem.Water] (x, y, world) {
-    if (world.inside(x, y+1) && world[x][y+1].type.is(Elem.Fire)) {
+    let X = x, Y = y;
+    if (Math.random() < 0.5) X += Math.random()<0.5 ? 1 : -1;
+    else Y += Math.random()<0.5 ? 1 : -1;
+    if (world.inside(X, Y) && world[X][Y].type.is(Elem.Fire)) {
       world.set(x, y, Make[Elem.Steam](x, y))
-      world.set(x, y+1, Make[Elem.Air](x, y+1))
-      return
-    } else if (world.inside(x, y-1) && world[x][y-1].type.is(Elem.Fire)) {
-      world.set(x, y, Make[Elem.Steam](x, y))
-      world.set(x, y-1, Make[Elem.Air](x, y-1))
-      return
-    } else if (world.inside(x+1, y) && world[x+1][y].type.is(Elem.Fire)) {
-      world.set(x, y, Make[Elem.Steam](x, y))
-      world.set(x+1, y, Make[Elem.Air](x+1, y))
-      return
-    } else if (world.inside(x-1, y) && world[x-1][y].type.is(Elem.Fire)) {
-      world.set(x, y, Make[Elem.Steam](x, y))
-      world.set(x-1, y, Make[Elem.Air](x-1, y))
+      world.set(X, Y, Make[Elem.Air](X, Y))
       return
     }
     if (world[x][y+1].type.is(Elem.Air, Elem.Steam))
@@ -215,21 +200,12 @@ const Rule = {
     if (world.inside(x, y-1) && world[x][y-1].type.is(Elem.Air)) {
       world.set(x, y-1, Make[Elem.Fire](x, y-1))
     }
-    if (world.inside(x, y+1) && world[x][y+1].type.is(Elem.Water)) {
+    let X = x, Y = y;
+    if (Math.random() < 0.5) X += Math.random()<0.5 ? 1 : -1;
+    else Y += Math.random()<0.5 ? 1 : -1;
+    if (world.inside(X, Y) && world[X][Y].type.is(Elem.Water)) {
       world.set(x, y, Make[Elem.Stone](x, y))
-      world.set(x, y+1, Make[Elem.Stone](x, y+1))
-      return
-    } else if (world.inside(x, y-1) && world[x][y-1].type.is(Elem.Water)) {
-      world.set(x, y, Make[Elem.Stone](x, y))
-      world.set(x, y-1, Make[Elem.Stone](x, y-1))
-      return
-    } else if (world.inside(x+1, y) && world[x+1][y].type.is(Elem.Water)) {
-      world.set(x, y, Make[Elem.Stone](x, y))
-      world.set(x+1, y, Make[Elem.Stone](x+1, y))
-      return
-    } else if (world.inside(x-1, y) && world[x-1][y].type.is(Elem.Water)) {
-      world.set(x, y, Make[Elem.Stone](x, y))
-      world.set(x-1, y, Make[Elem.Stone](x-1, y))
+      world.set(X, Y, Make[Elem.Steam](X, Y))
       return
     }
     if (world[x][y+1].type.is(Elem.Air, Elem.Steam, Elem.Fire))
@@ -267,16 +243,10 @@ const Rule = {
     }
   },
   [Elem.Sawdust]  (x, y, world) {
-    if (world.inside(x, y+1) && world[x][y+1].type.is(Elem.Fire, Elem.Lava)) {
-      world.set(x, y, Make[Elem.Fire](x, y))
-      return
-    } else if (world.inside(x, y-1) && world[x][y-1].type.is(Elem.Fire, Elem.Lava)) {
-      world.set(x, y, Make[Elem.Fire](x, y))
-      return
-    } else if (world.inside(x+1, y) && world[x+1][y].type.is(Elem.Fire, Elem.Lava)) {
-      world.set(x, y, Make[Elem.Fire](x, y))
-      return
-    } else if (world.inside(x-1, y) && world[x-1][y].type.is(Elem.Fire, Elem.Lava)) {
+    let X = x, Y = y;
+    if (Math.random() < 0.5) X += Math.random()<0.5 ? 1 : -1;
+    else Y += Math.random()<0.5 ? 1 : -1;
+    if (world.inside(X, Y) && world[X][Y].type.is(Elem.Fire, Elem.Lava)) {
       world.set(x, y, Make[Elem.Fire](x, y))
       return
     }

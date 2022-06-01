@@ -132,10 +132,10 @@ const Rule = {
     if (Math.random() < 0.5) X += Math.random()<0.5 ? 1 : -1;
     else Y += Math.random()<0.5 ? 1 : -1;
     if (world.inside(X, Y)) {
-      if (world[X][Y].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.95
-      if (world[X][Y].type.is(Elem.Wall) && world[X][Y].char + 0.1 < world[x][y].burn) world[x][y].char *= 0.9
+      if (world[X][Y].type.is(Elem.Fire, Elem.Lava)) world[x][y].char *= 0.975
+      if (world[X][Y].type.is(Elem.Wall) && world[X][Y].char + 0.1 < world[x][y].char) world[x][y].char *= 0.95
     }
-    world[x][y].char = Math.max(0.5, 1-0.998*(1-world[x][y].char))
+    world[x][y].char = Math.max(0.5, 1-0.9975*(1-world[x][y].char))
     if (Math.random() < 0.5) world.change(x, y)
   },
   [Elem.Sand]  (x, y, world) {

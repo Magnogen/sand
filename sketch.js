@@ -4,7 +4,7 @@ let $ = (query='') => document.querySelector(query)
 
 let c = $('canvas')
 let ctx = c.getContext('2d')
-c.width = c.height = 256
+c.width = c.height = 0|(256*0.8)
 
 const hash = ((size) => {
   const table = [...Array(size)].map(e => [...Array(size)].map(e => Math.random()))
@@ -431,6 +431,20 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
   c=a.length;while(c)b=Math.random()*c--|0,d=a[c],a[c]=a[b],a[b]=d
 }
 
+function drawWorld() {
+  let pixels = ctx.getImageData(0, 0, c.width, c.height)
+  for (let i of world.changes) {
+    const x = i%c.width,
+          y = 0|i/c.width
+    const col = Colour[world[x][y].type.type](world[x][y], x, y)
+    pixels.data[4*i + 0] = col[0]
+    pixels.data[4*i + 1] = col[1]
+    pixels.data[4*i + 2] = col[2]
+  }
+  world.clearChanges()
+  ctx.putImageData(pixels, 0, 0)
+}
+  
 (async () => {
   let pixels = ctx.getImageData(0, 0, c.width, c.height)  
   for (let x = 0; x < c.width; x++) {
@@ -448,17 +462,7 @@ function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder
   let coords = [...Array(c.width * c.height)].map((e, i) => ({ x: i%c.width, y: 0|(i/c.width) }))
   shuffle(coords)
   while (true) {
-    let pixels = ctx.getImageData(0, 0, c.width, c.height)
-    for (let i of world.changes) {
-      const x = i%c.width,
-            y = 0|i/c.width
-      const col = Colour[world[x][y].type.type](world[x][y], x, y)
-      pixels.data[4*i + 0] = col[0]
-      pixels.data[4*i + 1] = col[1]
-      pixels.data[4*i + 2] = col[2]
-    }
-    world.clearChanges()
-    ctx.putImageData(pixels, 0, 0)
+    drawWorld();
     
     mouse.lastx = mouse.x;
     mouse.lasty = mouse.y;

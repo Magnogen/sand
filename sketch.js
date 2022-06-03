@@ -141,7 +141,7 @@ const Rule = {
   [Elem.Sand]  (x, y, world) {
     const side = Math.random() < 0.5 ? -1 : 1
     let f = world[x][y+1].friction
-    if (world[x+side][y].type.is(Elem.Water) && Math.random() < 0.08) f = 0;
+    if (world[x+side][y].type.is(Elem.Water) && Math.random() < 0.8) f = 0;
     if (world[x][y+1].type.is(Elem.Air, Elem.Water))
       world.swap(x, y, x, y+1)
     else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water))

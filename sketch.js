@@ -392,16 +392,16 @@ let mouse = {
   }
 }
 
-c.addEventListener("mousemove", e => {
+c.addEventListener("pointermove", e => {
   mouse.lastx = mouse.x; mouse.lasty = mouse.y;
   mouse.x = e.offsetX; mouse.y = e.offsetY;
   mouse.states[mouse.state].move();
 });
-c.addEventListener("mousedown", e => {
+c.addEventListener("pointerdown", e => {
   mouse.down = true;
   mouse.states[mouse.state].down();
 });
-c.addEventListener("mouseup", e => {
+c.addEventListener("pointerup", e => {
   mouse.down = false;
   mouse.states[mouse.state].up();
 });

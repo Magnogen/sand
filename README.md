@@ -15,7 +15,7 @@ I'd like to add a few features for things like
 - [x] MORE ELEMENTS
   
   (And a way to switch between them)
-- [ ] Making it work on touchscreen devices (mobiles)
+- [x] Making it work on touchscreen devices (mobiles)
 - [ ] Resetting the canvas,
 
   (Maybe a keybind? Or a button in a menu?)

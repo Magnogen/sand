@@ -243,10 +243,18 @@ const Rule = {
     }
   },
   [Elem.Sawdust]  (x, y, world) {
-    let X = x, Y = y;
-    if (Math.random() < 0.5) X += Math.random()<0.5 ? 1 : -1;
-    else Y += Math.random()<0.5 ? 1 : -1;
-    if (world.inside(X, Y) && world[X][Y].type.is(Elem.Fire, Elem.Lava)) {
+    let dx=0, dy=0;
+    if (Math.random() < 0.5) dx = Math.random()<0.5 ? 1 : -1;
+    else dy = Math.random()<0.5 ? 1 : -1;
+    // if (world.inside(X, Y) && world[X][Y].type.is(Elem.Fire, Elem.Lava)) {
+    //   world.set(x, y, Make[Elem.Fire](x, y))
+    //   return
+    // }
+    if (world.inside(x+dx, y+dy) && world[x+dx][y+dy].type.is(Elem.Fire, Elem.Lava)) {
+      world.set(x, y, Make[Elem.Fire](x, y))
+      return
+    }
+    if (world.inside(x-dx, y-dy) && world[x-dx][y-dy].type.is(Elem.Fire, Elem.Lava)) {
       world.set(x, y, Make[Elem.Fire](x, y))
       return
     }

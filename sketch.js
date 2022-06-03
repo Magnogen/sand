@@ -392,18 +392,39 @@ let mouse = {
   }
 }
 
-c.addEventListener("pointermove", e => {
+c.addEventListener("mousedown", e => {
+  mouse.down = true;
+  mouse.states[mouse.state].down();
+});
+c.addEventListener("mouseup", e => {
+  mouse.down = false;
+  mouse.states[mouse.state].up();
+});
+c.addEventListener("mousemove", e => {
   mouse.lastx = mouse.x; mouse.lasty = mouse.y;
   mouse.x = e.offsetX; mouse.y = e.offsetY;
   mouse.states[mouse.state].move();
 });
-c.addEventListener("pointerdown", e => {
-  mouse.down = true;
+
+c.addEventListener('touchstart', e => {
+  e.preventDefault();
+  mouse.lastx = mouse.x; mouse.lasty = mouse.y;
+  mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY;
   mouse.states[mouse.state].down();
 });
-c.addEventListener("pointerup", e => {
+c.addEventListener('touchend', e => {
+  e.preventDefault();
   mouse.down = false;
   mouse.states[mouse.state].up();
+});
+c.addEventListener('touchcancel', e => {
+  console.log(e)
+});
+c.addEventListener('touchmove', e => {
+  e.preventDefault();
+  mouse.lastx = mouse.x; mouse.lasty = mouse.y;
+  mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY;
+  mouse.states[mouse.state].move();
 });
 
 function shuffle(a,b,c,d){//array,placeholder,placeholder,placeholder

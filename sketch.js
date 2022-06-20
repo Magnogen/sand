@@ -62,7 +62,7 @@ const Make = {
     col = (Math.sin((performance.now()/500 + Math.random()/24) * Math.PI)+2)/3
     // 142, 181, 189
     // 109, 137, 143
-    col = [ 142 + col*(109-142), 181 + col*(137-181), 189 + col*(143-189), 255 ]
+    col = [ 122 + col*(99-122), 161 + col*(127-161), 169 + col*(133-169), 255 ]
     let friction = 0|(Math.random() * 8 + 2)
     return { type: makeType(Elem.Stone), col, friction }
   },

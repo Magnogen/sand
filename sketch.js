@@ -142,37 +142,37 @@ const Rule = {
     const side = Math.random() < 0.5 ? -1 : 1
     let f = world[x][y+1].friction
     if (world[x+side][y].type.is(Elem.Water) && Math.random() < 0.8) f = 0;
-    if (world[x][y+1].type.is(Elem.Air, Elem.Water))
+    if (world[x][y+1].type.is(Elem.Air, Elem.Water, Elem.Steam))
       world.swap(x, y, x, y+1)
-    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x+side, y)
-    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x-side, y)
   },
   [Elem.Dirt]  (x, y, world) {
     const side = Math.random() < 0.5 ? -1 : 1
     const f = world[x][y].friction
-    if (world[x][y+1].type.is(Elem.Air, Elem.Water))
+    if (world[x][y+1].type.is(Elem.Air, Elem.Water, Elem.Steam))
       world.swap(x, y, x, y+1)
-    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x+side, y)
-    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x-side, y)
   },
   [Elem.Stone] (x, y, world) {
     const side = Math.random() < 0.5 ? -1 : 1
     const f = world[x][y].friction
-    if (world[x][y+1].type.is(Elem.Air, Elem.Water))
+    if (world[x][y+1].type.is(Elem.Air, Elem.Water, Elem.Steam))
       world.swap(x, y, x, y+1)
-    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x+side, y)
-    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x-side, y)
   },
   [Elem.Water] (x, y, world) {
@@ -238,7 +238,7 @@ const Rule = {
       world[x][y].age--;
       let side = Math.random() < 0.5 ? -1 : 1
       if (Math.random() < 0.6) side = 0;
-      if (world.inside(x+side, y-1) && world[x+side][y-1].type.is(Elem.Air))
+      if (world.inside(x+side, y-1) && world[x+side][y-1].type.is(Elem.Air, Elem.Steam))
         world.swap(x, y, x+side, y-1)
     }
   },
@@ -263,11 +263,11 @@ const Rule = {
     if (world[x+side][y].type.is(Elem.Water) && Math.random() < 0.8) f = 0;
     if (world[x][y+1].type.is(Elem.Air, Elem.Water))
       world.swap(x, y, x, y+1)
-    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x+side, y+f) && world[x+side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x+side, y) && world[x+side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x+side, y)
-    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water))
-      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water))
+    else if (world.inside(x-side, y+f) && world[x-side][y+f].type.is(Elem.Air, Elem.Water, Elem.Steam))
+      if (world.inside(x-side, y) && world[x-side][y].type.is(Elem.Air, Elem.Water, Elem.Steam))
         world.swap(x, y, x-side, y)
   },
 }

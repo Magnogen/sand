@@ -2,12 +2,11 @@
 ###### Easy-peasy Cellular Automata https://magnogen.net/sand
 
 This is the source code for a small project written in JavaScript.
-So far, only Sand is paintable - you cant even paint with air lol.
 
 ### How it works
-Simply click anywhere on the canvas to paint some sand.
-Sand falls downwards, and if there's a space to the bottom left or right corners, it'll fall there too.
-I've added the backend for Air and Water already, it's just a matter of adding the interface to allow you to paint it.
+Simply click anywhere on the canvas to paint into the world.
+There are a variety of elements that you can paint with, including Sand, Air, Water and Lava.
+See how everything interacts!
 
 ### Plans for the future
 I'd like to add a few features for things like
@@ -18,12 +17,11 @@ I'd like to add a few features for things like
 
   Drawing over everything with air is good enough, but maybe a button too?
   - [ ] `Reset World` button
-- [x] A menu for different types of paint to use,
-
+- [x] A menu for different types of paint to use
   - [ ] Make this better looking
 - [x] Support for custom-made elements with unique properties
 
-  So you'll have to write it in JavaScript, but I plan on making it its own language soon.
+  So you'll have to write it in JavaScript at the moment, but I plan on making it its own language soon.
   - [ ] Language
 - [x] Different colouring methods
 

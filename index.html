@@ -2,26 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cellular Automata Engine</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    
+    <script src="https://src.magnogen.net/dom.js"></script>
+    <script src="https://src.magnogen.net/random.js"></script>
+    <script src="https://src.magnogen.net/lex.js"></script>
+    <script src="https://src.magnogen.net/debug.js"></script>
+    
+    <script src="tokenize.js"></script>
+    <script src="parse.js"></script>
+    <script src="traversal.js"></script>
+    <script src="sketch.js"></script>
   </head>
   <body>
     <main>
-      <canvas></canvas>
-      <aside>
-        <select id="paint">
-          <option value="Air">Air</option>
-          <option value="Wall">Wall</option>
-          <option value="Sand" selected>Sand</option>
-          <option value="Dirt">Dirt</option>
-          <option value="Stone">Stone</option>
-          <option value="Water">Water</option>
-          <option value="Lava">Lava</option>
-          <option value="Fire">Fire</option>
-          <option value="Sawdust">Sawdust</option>
-          <option value="Steam">Steam</option>
-        </select>
-      </aside>
+      <div class="simulation-container">
+        <canvas></canvas>
+      </div>
+      
+      <div class="control-panel">
+        <div class="control-group">
+          <label for="element-select">Active Element</label>
+          <select id="element-select"></select>
+        </div>
+        
+        <div id="debugger-output" class="debug-console"></div>
+      </div>
     </main>
-    <script src="sketch.js"></script>
   </body>
 </html>

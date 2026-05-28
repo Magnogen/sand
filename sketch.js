@@ -204,7 +204,7 @@ on('load', () => {
     }
   };
   
-  c.addEventListener("mousedown", e => {
+  c.on("pointerdown", e => {
     e.preventDefault();
     mouse.down = true;
     mouse.lastx = mouse.x = e.clientX; 
@@ -212,13 +212,13 @@ on('load', () => {
     mouse.states[mouse.state].down();
   });
 
-  window.addEventListener("mouseup", e => {
+  on("pointerup", e => {
     if (!mouse.down) return;
     mouse.down = false;
     mouse.states[mouse.state].up();
   });
 
-  window.addEventListener("mousemove", e => {
+  on("pointermove", e => {
     if (!mouse.down) return;
     mouse.lastx = mouse.x; mouse.lasty = mouse.y;
     mouse.x = e.clientX; mouse.y = e.clientY;

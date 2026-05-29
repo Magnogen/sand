@@ -7,26 +7,41 @@ on('load', () => {
     (me:wall) => noop();
 
     (me:sand, below:air v) => swap(me, below);
+    (me:sand, below:water v) => swap(me, below);
     (me:sand, side:air v (< | >)) => swap(me, side);
+    (me:sand, side:water (< | >)) => swap(me, side);
+
+    (me:water, below:air v) => swap(me, below);
+    (me:water, side:air (< | >)) => swap(me, side);
+
+    (me:sawdust, near:fire *) => set(me, fire);
+    (me:sawdust, below:air v) => swap(me, below);
+    (me:sawdust, side:air v (< | >)) => swap(me, side);
+
+    (me:fire) => set(me, air) @ 0.125;
+    (me:fire, side:air ^ (< | >)) => swap(me, side) @ 0.5;
+    (me:fire, up:air ^) => swap(me, up);
   `);
   
   const ast = parse(tokens);
   // log(ast);
   const types = getElements(ast);
-  log(types);
+  // log(types);
   const rules = compileRules(ast);
   
   const elementIds = {};
   types.forEach((name, index) => elementIds[name] = index);
   
   const elementColours = {
-    air:   [15, 15, 20],
-    sand:  [235, 185, 110],
-    water: [60, 140, 230],
-    wall:  [90, 95, 100]
+    wall:       [90, 95, 100],
+    sand:       [235, 185, 110],
+    air:        [16, 16, 16],
+    water:      [60, 140, 230],
+    fire:       [237, 50, 21],
+    sawdust:    [222, 191, 149],
   };
   
-  const selectMenu = $('select');
+  const selectMenu = $('#element-select');
   selectMenu.innerHTML = '';
   types.forEach((name) => {
     const option = document.createElement('option');
@@ -34,6 +49,8 @@ on('load', () => {
     option.textContent = name.charAt(0).toUpperCase() + name.slice(1);
     selectMenu.appendChild(option);
   });
+  
+  const resetButton = $('#reset-button')
   
   const size = 128;
   const c = $('canvas');
@@ -43,6 +60,10 @@ on('load', () => {
   let world = [...Array(size)].map((_, x) => [...Array(size)].map((_, y) => {
     return elementIds['air'] !== undefined ? elementIds['air'] : 1;
   }));
+
+  let colorWorld = [...Array(size)].map((_, x) => [...Array(size)].map((_, y) => (
+    [0, 0, 0]
+  )));
   
   world.changes = [];
   world.changemap = [...Array(size)].map(() => [...Array(size)].map(() => false));
@@ -69,15 +90,26 @@ on('load', () => {
     if (x >= 0 && x < size && y >= 0 && y < size) {
       this.change(x, y);
       this[x][y] = now;
+      let col = [0, 0, 0];
+      if (now == elementIds['sand']) {
+        col = (Math.sin((performance.now()/500 + Math.random()/2) * Math.PI)+2)*18
+        col = [ col, col, col ]
+      }
+      colorWorld[x][y] = col; 
     }
   };
-  
+
   world.swap = function (a, b) {
     this.change(a.x, a.y); 
     this.change(b.x, b.y);
+
     const temp = this[a.x][a.y];
     this[a.x][a.y] = this[b.x][b.y];
     this[b.x][b.y] = temp;
+
+    const tempColor = colorWorld[a.x][a.y];
+    colorWorld[a.x][a.y] = colorWorld[b.x][b.y];
+    colorWorld[b.x][b.y] = tempColor;
   };
 
   let coords = [...Array(size * size)].map((_, i) => ({ x: i % size, y: 0 | (i / size) }));
@@ -99,14 +131,14 @@ on('load', () => {
       const y = 0 | (i / size);
 
       const cellValue = world[x][y];
-
       const elementName = types[cellValue];
+      const baseColor = elementColours[elementName] || [255, 0, 255]; 
 
-      const color = elementColours[elementName] || [255, 0, 255]; 
+      const cellVariance = colorWorld[x][y];
 
-      img.data[4 * i + 0] = color[0];
-      img.data[4 * i + 1] = color[1];
-      img.data[4 * i + 2] = color[2];
+      img.data[4 * i + 0] = Math.max(0, Math.min(255, baseColor[0] + cellVariance[0]));
+      img.data[4 * i + 1] = Math.max(0, Math.min(255, baseColor[1] + cellVariance[1]));
+      img.data[4 * i + 2] = Math.max(0, Math.min(255, baseColor[2] + cellVariance[2]));
       img.data[4 * i + 3] = 255;
     }
 
@@ -213,14 +245,12 @@ on('load', () => {
   });
 
   on("pointerup", e => {
-    e.preventDefault();
     if (!mouse.down) return;
     mouse.down = false;
     mouse.states[mouse.state].up();
   });
 
   on("pointermove", e => {
-    e.preventDefault();
     if (!mouse.down) return;
     mouse.lastx = mouse.x; mouse.lasty = mouse.y;
     mouse.x = e.clientX; mouse.y = e.clientY;
@@ -229,6 +259,18 @@ on('load', () => {
   
   selectMenu.on('change', (e) => {
     currentPaintElement = parseInt(e.target.value, 10);
+  });
+  
+  resetButton.on('click', (e) => {
+    const airId = elementIds['air'] !== undefined ? elementIds['air'] : 1;
+
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        world[x][y] = airId;
+        colorWorld[x][y] = [0, 0, 0]
+        world.change(x, y);
+      }
+    }
   });
   
   for (let y = 0; y < size; y++) {

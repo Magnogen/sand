@@ -3,7 +3,11 @@ const parse = (tokens) => {
   
   const identifier = P.token('identifier');
   
-  const positionSymbol = P.token('symbol').map(tok => tok.value);
+  const positionSymbol =
+    P.any(
+      P.token('symbol'),
+      P.token('star')
+    ).map(tok => tok.value);
 
   const positionAltGroup =
     P.chain(
@@ -70,17 +74,27 @@ const parse = (tokens) => {
     ).map(
       ([name, , args]) => ({ type: 'Action', name: name.value, args: args[0] || [] })
     );
+  
+  const actionList =
+    P.many(action);
 
+  const probability =
+    P.chain(
+      P.token('at'),
+      P.token('number')
+    ).map(([, prob]) => parseFloat(prob.value));
+  
   const rule =
     P.chain(
       P.token('lparen'),
       conditionList,
       P.token('rparen'),
       P.token('arrow'),
-      action,
+      actionList,
+      P.maybe(probability),
       P.maybe(P.token('semicolon'))
     ).map(
-      ([, conditions, , , action]) => ({ type: 'Rule', conditions, action })
+      ([, conditions, , , actions, prob]) => ({ type: 'Rule', conditions, actions, prob: prob[0] ?? 1 })
     );
 
   const tagDefinition =

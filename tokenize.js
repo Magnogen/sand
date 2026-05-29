@@ -6,6 +6,7 @@ const tokenize = (source) => {
   lexer.define('whitespace', /\s+/, { ignore: true });
   lexer.define('symbol',     /[v^><]/);
   lexer.define('identifier', /[a-zA-Z_][a-zA-Z0-9_]*/);
+  lexer.define('number',     /[0-9]+(\.[0-9]+)?/);
   lexer.define('arrow',      '=>');
   lexer.define('star',       '*')
   lexer.define('comma',      ',');
@@ -19,6 +20,7 @@ const tokenize = (source) => {
   lexer.define('lparen',     '(');
   lexer.define('rparen',     ')');
   lexer.define('pipe',       '|');
+  lexer.define('at',         '@');
   
   return lexer.tokenize(source);
 };

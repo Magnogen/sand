@@ -213,12 +213,14 @@ on('load', () => {
   });
 
   on("pointerup", e => {
+    e.preventDefault();
     if (!mouse.down) return;
     mouse.down = false;
     mouse.states[mouse.state].up();
   });
 
   on("pointermove", e => {
+    e.preventDefault();
     if (!mouse.down) return;
     mouse.lastx = mouse.x; mouse.lasty = mouse.y;
     mouse.x = e.clientX; mouse.y = e.clientY;

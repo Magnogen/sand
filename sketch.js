@@ -1,4 +1,3 @@
-// noprotect
 on('load', () => {
   
   const log = Debugger($('#debugger-output'));

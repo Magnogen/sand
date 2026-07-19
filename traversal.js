@@ -1,4 +1,3 @@
-// noprotect
 const stop = false;
 const Traversal = {
   getElements: (ast) => {
@@ -32,6 +31,8 @@ const Traversal = {
 
     const directionToX = { 'v': 0, '^': 0, '<': -1, '>': 1 };
     const directionToY = { 'v': 1, '^': -1, '<': 0, '>': 0 };
+
+    const choose = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
     const analyzePosition = (position) => {
       let staticX = 0;
